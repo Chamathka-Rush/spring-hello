@@ -8,8 +8,8 @@ pipeline {
                     //sh 'git clone https://github.com/Chamathka-Rush/spring-hello.git'
                     //sh 'git pull origin master'
                     //echo 'cloned the repository...'
-                    //sh "pwd" 
-                    //sh "ls -lh"
+                    sh "pwd" 
+                    sh "ls -lh"
                     
                 }
             }
@@ -18,8 +18,8 @@ pipeline {
         stage('Setting the directory'){
             steps{
                 script{
-                    //dir('/var/jenkins_home/workspace/springboot/spring-hello/'){
-                       // sh "pwd"
+                    dir('/var/jenkins_home/workspace/springboot/spring-hello/'){
+                        sh "pwd"
                     }
                 }
             }
