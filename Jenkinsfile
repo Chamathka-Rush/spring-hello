@@ -5,7 +5,7 @@ pipeline {
         stage('Checkout') {
             steps {
                 script{
-                    sh 'git clone https://github.com/Chamathka-Rush/spring-hello.git'
+                    //sh 'git clone https://github.com/Chamathka-Rush/spring-hello.git'
                     echo 'cloned the repository...'
                     sh "pwd" 
                     sh "ls -lh"
