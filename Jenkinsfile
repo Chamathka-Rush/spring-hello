@@ -41,6 +41,7 @@ pipeline {
                 script{
                        sh "docker tag springdemo:v1 chamathka202602/springdemo:v1"
                        sh "docker push chamathka202602/springdemo:v1"
+                       sh "docker rmi chamathka202602/springdemo:v1"
                        sh "echo chamathka202602/springdemo:v1 ${WORKSPACE}/Dockerfile > anchore_images"
                        anchore forceAnalyze: true, bailOnFail: false, timeout: -1.0, name: 'anchore_images'
                 }
