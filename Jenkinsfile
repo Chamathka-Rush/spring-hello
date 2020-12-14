@@ -5,11 +5,11 @@ pipeline {
         stage('Checkout') {
             steps {
                 script{
-                    sh 'git clone https://github.com/Chamathka-Rush/spring-hello.git'
+                    //sh 'git clone https://github.com/Chamathka-Rush/spring-hello.git'
                     //sh 'git pull origin master'
-                    echo 'cloned the repository...'
-                    sh "pwd" 
-                    sh "ls -lh"
+                    //echo 'cloned the repository...'
+                    //sh "pwd" 
+                    //sh "ls -lh"
                     
                 }
             }
@@ -18,8 +18,8 @@ pipeline {
         stage('Setting the directory'){
             steps{
                 script{
-                    dir('/var/jenkins_home/workspace/springboot/spring-hello/'){
-                        sh "pwd"
+                    //dir('/var/jenkins_home/workspace/springboot/spring-hello/'){
+                       // sh "pwd"
                     }
                 }
             }
@@ -30,7 +30,7 @@ pipeline {
                 script{
                     dir("/var/jenkins_home/workspace/springboot/spring-hello/") {
                         sh "pwd"
-                        sh "docker build -t spring-hello:v2 ."
+                        //sh "docker build -t spring-hello:v2 ."
                         sh "docker images"
                     }
                 }
