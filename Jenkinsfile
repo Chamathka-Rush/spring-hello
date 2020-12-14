@@ -37,6 +37,8 @@ pipeline {
             }
         }
         
+        stage('Pushing the docker image to the containe registry')
+        
         stage("Anchore container image scanning stage"){
             steps{
                 script{
