@@ -29,7 +29,7 @@ pipeline {
                 script{
                     dir("/var/jenkins_home/workspace/springboot/spring-hello/") {
                         sh "pwd"
-                        sh "docker build -t springdemo:v1 ."
+                        //sh "docker build -t springdemo:v1 ."
                         sh "docker images"
                     }
                 }
