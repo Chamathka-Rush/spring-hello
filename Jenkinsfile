@@ -37,7 +37,14 @@ pipeline {
             }
         }
         
-        stage('Pushing the docker image to the containe registry')
+        stage('Pushing the docker image to the container registry'){
+            steps{
+                script{
+                       sh "docker push chamathka202602/springboot"
+                       anchore forceAnalyze: true, bailOnFail: false, timeout: -1.0, name: 'anchore_images'
+                }
+            }
+        }
         
         stage("Anchore container image scanning stage"){
             steps{
