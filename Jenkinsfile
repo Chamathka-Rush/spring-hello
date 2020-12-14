@@ -40,7 +40,7 @@ pipeline {
         stage("Anchore container image scanning stage"){
             steps{
                 script{
-                     def imageLine = 'spring-hello:v2'
+                     def imageLine = 'chamathka202602/springboot'
                      writeFile file: 'anchore_images', text: imageLine
                      anchore name: 'anchore_images'
                 }
