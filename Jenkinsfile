@@ -40,6 +40,7 @@ pipeline {
         stage('Pushing the docker image to the container registry'){
             steps{
                 script{
+                       sh "docker login -u chamathka202602"
                        sh "docker tag spring-hello-jenkins:v1 chamathka202602/springboot:v2"
                        sh "docker push chamathka202602/springboot:v2"
                        anchore forceAnalyze: true, bailOnFail: false, timeout: -1.0, name: 'anchore_images'
