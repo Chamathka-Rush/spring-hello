@@ -40,7 +40,7 @@ pipeline {
             steps{
                 script{
                        sh "docker tag springdemo:v1 chamathka202602/springdemo:v1"
-                       sh "docker login --username=chamathka202602"
+                       //sh "docker login --username=chamathka202602"
                        sh "docker push chamathka202602/springdemo:v1"
                        sh "docker rmi chamathka202602/springdemo:v1"
                        sh "echo chamathka202602/springdemo:v1 ${WORKSPACE}/Dockerfile > anchore_images"
