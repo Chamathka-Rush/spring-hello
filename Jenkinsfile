@@ -5,7 +5,7 @@ pipeline {
         stage('Checkout') {
             steps {
                 script{
-                    sh 'git clone https://github.com/Chamathka-Rush/spring-hello.git'
+                    //sh 'git clone https://github.com/Chamathka-Rush/spring-hello.git'
                     echo 'cloned the repository...'
                     sh "pwd" 
                     sh "ls -lh"
@@ -29,7 +29,7 @@ pipeline {
                 script{
                     dir("/var/jenkins_home/workspace/springboot/spring-hello/") {
                         sh "pwd"
-                        sh "docker build -t springdemo:v1 ."
+                        //sh "docker build -t springdemo:v1 ."
                         sh "docker images"
                     }
                 }
