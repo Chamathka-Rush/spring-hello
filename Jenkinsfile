@@ -29,7 +29,7 @@ pipeline {
                 script{
                     dir("/var/jenkins_home/workspace/springboot/spring-hello/") {
                         sh "pwd"
-                        //sh "docker build -t springdemo:v1 ."
+                        //sh "docker build -t springdemo ."
                         sh "docker images"
                     }
                 }
@@ -39,11 +39,11 @@ pipeline {
         stage('Pushing the docker image to the container registry'){
             steps{
                 script{
-                       sh "docker tag springdemo:v1 chamathka202602/springdemo:v1"
+                       sh "docker tag springdemo:v1 chamathka202602/springdemo"
                        //sh "docker login --username=chamathka202602"
-                       sh "docker push chamathka202602/springdemo:v1"
-                       sh "docker rmi chamathka202602/springdemo:v1"
-                       sh "echo chamathka202602/springdemo:v1 ${WORKSPACE}/Dockerfile > anchore_images"
+                       sh "docker push chamathka202602/springdemo:latest"
+                       sh "docker rmi chamathka202602/springdemo:latest"
+                       sh "echo chamathka202602/springdemo:latest ${WORKSPACE}/Dockerfile > anchore_images"
                        anchore forceAnalyze: true, bailOnFail: false, timeout: -1.0, name: 'anchore_images'
                 }
             }
@@ -52,7 +52,7 @@ pipeline {
         stage("Anchore container image scanning stage"){
             steps{
                 script{
-                     def imageLine = 'chamathka202602/springdemo:v1'
+                     def imageLine = 'chamathka202602/springdemo:latest'
                      writeFile file: 'anchore_images', text: imageLine
                      anchore name: 'anchore_images'
                 }
