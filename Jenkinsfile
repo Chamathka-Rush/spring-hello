@@ -35,14 +35,14 @@ pipeline {
             }
         } 
 
-        //stage("Anchore container image scanning stage"){
-            //steps{
-                //script{
-                    // def imageLine = 'dockerImage'
-                    // writeFile file: 'anchore_images', text: imageLine
-                    // anchore name: 'anchore_images'
-               // }
-           // }
-      //  }
+        stage("Anchore container image scanning stage"){
+            steps{
+                script{
+                     def imageLine = 'dockerImage'
+                     writeFile file: 'anchore_images', text: imageLine
+                     anchore name: 'anchore_images'
+                }
+            }
+       }
     }
 }
