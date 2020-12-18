@@ -17,7 +17,7 @@ pipeline {
             steps { 
                 script { 
                     dockerImage = docker.build registry + ":$BUILD_NUMBER" 
-                    echo "${dockerImage}"
+                    echo "${dockerImage()}"
                 }
             } 
         }
@@ -26,7 +26,7 @@ pipeline {
                 script { 
                     docker.withRegistry( '', registryCredential ) {                         
                         dockerImage.push() 
-                        echo "${dockerImage} ${WORKSPACE}/Dockerfile > anchore_images"
+                        echo "${dockerImage()} ${WORKSPACE}/Dockerfile > anchore_images"
                         anchore forceAnalyze: true, bailOnFail: false, timeout: -1.0, name: 'anchore_images'
                     }
                 } 
