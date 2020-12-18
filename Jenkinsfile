@@ -23,14 +23,28 @@ pipeline {
                 script { 
                     docker.withRegistry( '', registryCredential ) { 
                         dockerImage.push() 
+                        sh "echo ${dockerImage} ${WORKSPACE}/Dockerfile > anchore_images"
+                        anchore forceAnalyze: true, bailOnFail: false, timeout: -1.0, name: 'anchore_images'
                     }
                 } 
             }
         } 
-        stage('Cleaning up') { 
-            steps { 
-                sh "docker rmi $registry:$BUILD_NUMBER" 
+
+        stage("Anchore container image scanning stage"){
+            steps{
+                script{
+                     def imageLine = 'dockerImage'
+                     writeFile file: 'anchore_images', text: imageLine
+                     anchore name: 'anchore_images'
+                }
             }
-        } 
+        }
+
+        
+        //stage('Cleaning up') { 
+            //steps { 
+               // sh "docker rmi $registry:$BUILD_NUMBER" 
+           // }
+       // } 
     }
 }
