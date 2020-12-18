@@ -23,9 +23,13 @@ pipeline {
             steps { 
                 script { 
                     docker.withRegistry( '', registryCredential ) { 
-                        dockerImage.push()
-                        sh "docker rmi $registry:$BUILD_NUMBER" 
-                        sh "echo ${dockerImage} ${WORKSPACE}/Dockerfile > anchore_images"
+                       // dockerImage.push()
+                       // sh "docker rmi $registry:$BUILD_NUMBER" 
+                       // sh "echo ${dockerImage} ${WORKSPACE}/Dockerfile > anchore_images"
+                       // anchore forceAnalyze: true, bailOnFail: false, timeout: -1.0, name: 'anchore_images'
+                        docker.withRegistry( '', registryCredential ) { 
+                        dockerImage.push() 
+                        //sh "echo chamathka202602/springdemo:v1 ${WORKSPACE}/Dockerfile > anchore_images"
                         anchore forceAnalyze: true, bailOnFail: false, timeout: -1.0, name: 'anchore_images'
                         //sh 'echo "docker.io/exampleuser/examplerepo:latest `pwd`/Dockerfile" > anchore_images'
                        // anchore name: 'anchore_images'
