@@ -8,7 +8,8 @@ pipeline {
     stages { 
         stage('Cloning our Git') { 
             steps { 
-                sh "git clone https://github.com/Chamathka-Rush/spring-hello.git"
+                //sh "git clone https://github.com/Chamathka-Rush/spring-hello.git"
+                sh "echo git repository cloned"
             }
         } 
         stage('Building our image') { 
