@@ -24,6 +24,7 @@ pipeline {
                 script { 
                     docker.withRegistry( '', registryCredential ) { 
                         dockerImage.push() 
+                        sh "docker rmi $registry:$BUILD_NUMBER" 
                         sh "echo ${dockerImage} ${WORKSPACE}/Dockerfile > anchore_images"
                         anchore forceAnalyze: true, bailOnFail: false, timeout: -1.0, name: 'anchore_images'
                     }
@@ -40,12 +41,5 @@ pipeline {
                 }
             }
         }
-
-        
-        //stage('Cleaning up') { 
-            //steps { 
-               // sh "docker rmi $registry:$BUILD_NUMBER" 
-           // }
-       // } 
     }
 }
