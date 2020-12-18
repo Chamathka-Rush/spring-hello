@@ -8,8 +8,7 @@ pipeline {
     stages { 
         stage('Cloning our Git') { 
             steps { 
-                //sh "git clone https://github.com/Chamathka-Rush/spring-hello.git"
-                sh "echo git repository cloned"
+                sh "git clone https://github.com/Chamathka-Rush/spring-hello.git"
             }
         } 
         stage('Building our image') { 
@@ -23,26 +22,18 @@ pipeline {
             steps { 
                 script { 
                     docker.withRegistry( '', registryCredential ) { 
-                        dockerImage.push()
-                        sh "docker rmi ${dockerImage}" 
+                        dockerImage.push() 
                         sh "echo ${dockerImage} ${WORKSPACE}/Dockerfile > anchore_images"
                         anchore forceAnalyze: true, bailOnFail: false, timeout: -1.0, name: 'anchore_images'
-                        
-                        //sh 'echo "docker.io/exampleuser/examplerepo:latest `pwd`/Dockerfile" > anchore_images'
-                       // anchore name: 'anchore_images'
                     }
                 } 
             }
-        } 
-
-        stage("Anchore container image scanning stage"){
-            steps{
-                script{
-                     def imageLine = dockerImage
-                     writeFile file: 'anchore_images', text: imageLine
-                     anchore name: 'anchore_images'
-                }
+        }
+        
+        stage('Cleaning up') { 
+            steps { 
+                sh "docker rmi $registry:$BUILD_NUMBER" 
             }
-       }
+        } 
     }
 }
