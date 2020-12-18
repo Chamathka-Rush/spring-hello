@@ -1,3 +1,4 @@
+
 pipeline { 
     environment { 
         registry = "chamathka202602/one" 
@@ -22,6 +23,7 @@ pipeline {
             steps { 
                 script { 
                     docker.withRegistry( '', registryCredential ) { 
+                        sh "echo ${dockerImage}"
                         dockerImage.push() 
                         sh "echo ${dockerImage} ${WORKSPACE}/Dockerfile > anchore_images"
                         anchore forceAnalyze: true, bailOnFail: false, timeout: -1.0, name: 'anchore_images'
