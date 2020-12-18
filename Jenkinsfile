@@ -25,7 +25,7 @@ pipeline {
                     docker.withRegistry( '', registryCredential ) { 
                         dockerImage.push()
                         anchore forceAnalyze: true, bailOnFail: false, timeout: -1.0, name: 'anchore_images'
-                        //sh "docker rmi $registry:$BUILD_NUMBER" 
+                        sh "docker rmi $registry:$BUILD_NUMBER" 
                         //sh "echo ${dockerImage} ${WORKSPACE}/Dockerfile > anchore_images"
                         //anchore forceAnalyze: true, bailOnFail: false, timeout: -1.0, name: 'anchore_images'
                         //sh 'echo "docker.io/exampleuser/examplerepo:latest `pwd`/Dockerfile" > anchore_images'
@@ -38,7 +38,7 @@ pipeline {
         stage("Anchore container image scanning stage"){
             steps{
                 script{
-                     def imageLine = 'dockerImage'
+                     def imageLine = dockerImage
                      writeFile file: 'anchore_images', text: imageLine
                      anchore name: 'anchore_images'
                 }
