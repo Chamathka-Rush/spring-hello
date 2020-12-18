@@ -25,7 +25,7 @@ pipeline {
                 script { 
                     docker.withRegistry( '', registryCredential ) {                         
                         dockerImage.push() 
-                        sh "echo $dockerImage ${WORKSPACE}/Dockerfile > anchore_images"
+                        sh "echo ${dockerImage} ${WORKSPACE}/Dockerfile > anchore_images"
                         anchore forceAnalyze: true, bailOnFail: false, timeout: -1.0, name: 'anchore_images'
                     }
                 } 
