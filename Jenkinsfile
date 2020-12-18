@@ -24,8 +24,8 @@ pipeline {
                 script { 
                     docker.withRegistry( '', registryCredential ) { 
                         dockerImage.push()
-                        sh "docker rmi $registry:$BUILD_NUMBER" 
-                        sh "echo dockerImage ${WORKSPACE}/Dockerfile > anchore_images"
+                        sh "docker rmi ${dockerImage}" 
+                        sh "echo ${dockerImage} ${WORKSPACE}/Dockerfile > anchore_images"
                         anchore forceAnalyze: true, bailOnFail: false, timeout: -1.0, name: 'anchore_images'
                         
                         //sh 'echo "docker.io/exampleuser/examplerepo:latest `pwd`/Dockerfile" > anchore_images'
