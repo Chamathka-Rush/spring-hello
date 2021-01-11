@@ -87,7 +87,7 @@ def updateStatusInInsight(String projectKey, String Stage){
     echo(body)
 
     try {
-        httpRequest consoleLogResponseBody: true, authentication: 'devsecops-insight-authentication', contentType: 'APPLICATION_JSON', httpMode: 'POST', requestBody: "${body}", url: "${checklisturl}", ignoreSslErrors: true
+        httpRequest consoleLogResponseBody: true,contentType: 'APPLICATION_JSON', httpMode: 'POST', requestBody: "${body}", url: "${checklisturl}", ignoreSslErrors: true
         echo("Updated insight")
     } catch(Exception e) {
         echo("Could not update insight")
