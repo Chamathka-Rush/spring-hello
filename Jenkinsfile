@@ -77,20 +77,26 @@ pipeline {
 }
 
 def updateStatusInInsight(String projectKey, String Stage){
-    def checklisturl = "http://10.128.0.42:8083/mapper/api/v1/compliance-checklist/projects/ci-cd"
-    def checklistbody = [:]
-    checklistbody.sonarProjectKey = projectKey
-    checklistbody.sonarInstace = "sonar-01"
-    checklistbody.checkListItem = Stage
-    checklistbody.enabled = "true"
-    def body = groovy.json.JsonOutput.toJson(checklistbody)
-    echo(body)
+  def checklisturl = "http://10.128.0.42:8083/mapper/api/v1/compliance-checklist/projects/ci-cd"
+  def checklistbody = [: ]
+  checklistbody.sonarProjectKey = projectKey
+  checklistbody.sonarInstace = "sonar-01"
+  checklistbody.checkListItem = Stage
+  checklistbody.enabled = "true"
+  def body = JsonOutput.toJson(checklistbody)
+  echo(body)
 
-    try {
-        httpRequest consoleLogResponseBody: true,contentType: 'APPLICATION_JSON', httpMode: 'POST', requestBody: "${body}", url: "${checklisturl}", ignoreSslErrors: true
-        echo("Updated insight")
-    } catch(Exception e) {
-        echo("Could not update insight")
-	throw e
-    }
+  try {
+    httpRequest consoleLogResponseBody: true,
+    authentication: 'devsecops-insight-authentication',
+    contentType: 'APPLICATION_JSON',
+    httpMode: 'POST',
+    requestBody: "${body}",
+    url: "${checklisturl}",
+    ignoreSslErrors: true
+    echo("Updated insight")
+  } catch(Exception e) {
+    echo("Could not update insight")
+  }
+    
 }
