@@ -83,7 +83,7 @@ def updateStatusInInsight(String projectKey, String Stage){
   checklistbody.sonarInstace = "sonar-01"
   checklistbody.checkListItem = Stage
   checklistbody.enabled = "true"
-  def body = JsonOutput.toJson(checklistbody)
+  def body = groovy.json.JsonOutput.toJson(checklistbody)
   echo(body)
 
   try {
