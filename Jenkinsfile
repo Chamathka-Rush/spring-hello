@@ -12,7 +12,6 @@ pipeline {
 			try{
 			git(
                                 url: 'https://github.com/Chamathka-Rush/spring-hello.git',
-                                branch: 'master',
                                 changelog: false,
                                 credentialsId: 'github-credentials',
                                 poll: true
