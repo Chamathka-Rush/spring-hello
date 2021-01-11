@@ -51,11 +51,16 @@ pipeline {
         
          stage('Static Analysis'){
                  steps {
-                     script {
-                       sh "sh /var/jenkins_home/sonar-scanner/sonar-scanner-3.2.0.1227-windows/bin/sonar-scanner -Dsonar.login=a77ef296422c3e04cdf03d0c0e53547f9b260f2c -Dsonar.projectBaseDir=. -Dsonar.projectKey='demo' -Dsonar.sources=. -Dsonar.java.binaries=. -Dsonar.branch.name=main -DtoolStackRulesPath=/var/jenkins_home/Rules/tool_stack_rules.xml -DserviceComplianceRulesPath=/var/jenkins_home/Rules/service_compliance_rules.xml -DanchoreJsonParser=/var/jenkins_home/Rules/anchoreengine-api-response-vulnerabilities-1.json -DconfigurationRulesPath=/var/jenkins_home/Rules/config-compliance-rules.xml -DcicdComplianceRulesPath=/var/jenkins_home/Rules/ci-cd_compliance_rules.xml -DarchitectureComplianceReportPath=/var/jenkins_home/Rules/jqassistant/reports/jqassistant-report.xml"
-			 updateStatusInInsight(params.sonarProjectKey, "AST Sonar Static Code Analyser")
-                     }
-                 }
+                    script {
+                        try {
+                            sh "sh /sonar-scanner-3.2.0.1227/bin/sonar-scanner -Dsonar.host.url=http://10.128.0.29:9000 -Dsonar.login=3b98db04f6e519a9496e8dc924734341fff145d1 -Dsonar.projectBaseDir=. -Dsonar.dependencyCheck.htmlReportPath=odc-reports/dependency-check-report.html -Dsonar.projectKey='${sonar_project_key}' -Dsonar.sources=. -Dsonar.java.binaries=. -Dsonar.verbose=false -Dsonar.css.file.suffixes=.foo -Dsonar.jacoco.reportPath=${WORKSPACE}/target/jacoco.exec -DtoolStackRulesPath=/var/jenkins_home/rules/tool_stack_rules.xml -DserviceComplianceRulesPath=/var/jenkins_home/rules/service_compliance_rules.xml -DanchoreJsonParser=/var/jenkins_home/rules/anchoreengine-api-response-vulnerabilities-1.json -DconfigurationRulesPath=/var/jenkins_home/rules/config-compliance-rules.xml -DcicdComplianceRulesPath=/var/jenkins_home/rules/ci-cd_compliance_rules.xml -DenvironmentComplianceRulesPath=/var/jenkins_home/rules/environment_compliance.xml -DarchitectureComplianceReportPath=/var/jenkins_home/jqa/reports/jqassistant-report.xml"
+                            updateStatusInInsight(params.sonarProjectKey, "AST Sonar Static Code Analyser")
+                        } catch (Exception e) {
+                            throw e
+                        }
+                    }
+                }
+            }
          }
     }
 }
