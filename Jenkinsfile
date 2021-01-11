@@ -8,8 +8,17 @@ pipeline {
     stages { 
         stage('Clone') { 
             steps { 
-                echo "cloned the repository"
-                //sh "git clone https://github.com/Chamathka-Rush/spring-hello.git"
+		script{
+			  git(
+                                url: "https://github.com/Chamathka-Rush/spring-hello.git",
+                                branch: "master",
+                                changelog: false,
+                                credentialsId: "github-credentials",
+                                poll: true
+                        )  
+			//echo "cloned the repository"
+                	//sh "git clone https://github.com/Chamathka-Rush/spring-hello.git"
+		    }
             }
         } 
 
@@ -54,7 +63,7 @@ pipeline {
                     script {
                         try {
                             sh "sh /var/jenkins_home/sonar-scanner-3.2.0.1227-linux/bin/sonar-scanner -Dsonar.login=a77ef296422c3e04cdf03d0c0e53547f9b260f2c -Dsonar.projectBaseDir=. -Dsonar.projectKey=demo -Dsonar.sources=. -Dsonar.java.binaries=. -DtoolStackRulesPath=/var/jenkins_home/Rules/tool_stack_rules.xml -DserviceComplianceRulesPath=/var/jenkins_home/Rules/service_compliance_rules.xml -DanchoreJsonParser=/var/jenkins_home/Rules/anchoreengine-api-response-vulnerabilities-1.json -DconfigurationRulesPath=/var/jenkins_home/Rules/config-compliance-rules.xml -DcicdComplianceRulesPath=/var/jenkins_home/Rules/ci-cd_compliance_rules.xml -DarchitectureComplianceReportPath=/var/jenkins_home/Rules/jqassistant/reports/jqassistant-report.xml"
-			    updateStatusInInsight(params.sonarProjectKey, "AST Sonar Static Code Analyser")
+			    updateStatusInInsight("demo", "AST Sonar Static Code Analyser")
                         } catch (Exception e) {
                             throw e
                         }
