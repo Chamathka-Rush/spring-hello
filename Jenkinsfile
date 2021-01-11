@@ -9,16 +9,18 @@ pipeline {
         stage('Clone') { 
             steps { 
 		script{
-			  git(
+			try{
+			git(
                                 url: "https://github.com/Chamathka-Rush/spring-hello.git",
                                 branch: "master",
                                 changelog: false,
                                 credentialsId: "github-credentials",
                                 poll: true
-                        )  
-			//echo "cloned the repository"
-                	//sh "git clone https://github.com/Chamathka-Rush/spring-hello.git"
-		    }
+                        )  	
+			} catch (Exception e){
+				throw e
+			}
+		  }
             }
         } 
 
