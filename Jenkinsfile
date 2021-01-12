@@ -88,7 +88,6 @@ def updateStatusInInsight(String projectKey, String Stage){
 
   try {
     httpRequest consoleLogResponseBody: true,
-    authentication: 'devsecops-insight-authentication',
     contentType: 'APPLICATION_JSON',
     httpMode: 'POST',
     requestBody: "${body}",
