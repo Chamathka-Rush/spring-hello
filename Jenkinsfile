@@ -60,7 +60,20 @@ pipeline {
                 }
             }
         }
-        
+	    
+	    
+         stage('DAST Scan') {
+                 steps {
+		       script{
+           		sh "chmod -R 777 /var/jenkins_home/zap"
+           		sh "cd /var/jenkins_home/zap && rm -rf *"
+           		sh "docker run --rm -v /var/jenkins_home/zap/:/zap/wrk/:rw -t owasp/zap2docker-stable zap-full-scan.py -i -t http://10.128.0.42:8089/insightlive-dashboard/ -g gen.conf -x testreport.xml"
+              }
+           }
+        }
+	    
+	    
+	    
          stage('Static Analysis'){
                  steps {
                     script {
@@ -74,15 +87,7 @@ pipeline {
                 }
             }
 	    
-	 stage('DAST Scan') {
-                 steps {
-		       script{
-           		sh "chmod -R 777 /var/jenkins_home/zap"
-           		sh "cd /var/jenkins_home/zap && rm -rf *"
-           		sh "docker run --rm -v /var/jenkins_home/zap/:/zap/wrk/:rw -t owasp/zap2docker-stable zap-full-scan.py -i -t http://10.128.0.42:8089/insightlive-dashboard/ -g gen.conf -x testreport.xml"
-              }
-           }
-        }
+	 
          
     }
 }
