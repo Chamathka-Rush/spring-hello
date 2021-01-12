@@ -44,6 +44,7 @@ pipeline {
         stage('Anchor Analysis') { 
           steps {
            script {
+            echo '${WORKSPACE}' 
 	    sh 'echo "docker.io/${registry}:$BUILD_NUMBER ${WORKSPACE}/Dockerfile" > anchore_images'
 	    anchore forceAnalyze: true, bailOnFail: false, timeout: -1.0, name: 'anchore_images'
 	    sh "docker rmi $registry:$BUILD_NUMBER"
