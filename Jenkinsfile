@@ -70,6 +70,7 @@ pipeline {
 				    echo "=============================="
 				    echo "Starting Dependency Scan Stage"
 				    echo "=============================="
+				    sh "rm -rf ./.scannerwork"
 				    def hostWs = WORKSPACE
 
 				    print(hostWs + "-----------------------------+")
