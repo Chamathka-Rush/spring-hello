@@ -66,24 +66,24 @@ pipeline {
          stage('DEPENDANCY Scan') {
                  steps {
 		       script{
-           		try {
-			    echo "=============================="
-			    echo "Starting Dependency Scan Stage"
-			    echo "==============================
-			    def hostWs = WORKSPACE
+				try {
+				    echo "=============================="
+				    echo "Starting Dependency Scan Stage"
+				    echo "==============================
+				    def hostWs = WORKSPACE
 
-			    print(hostWs + "-----------------------------+")
+				    print(hostWs + "-----------------------------+")
 
-			    sh "docker run --rm --volume '${hostWs}':/src:rw --volume '${hostWs}'/OWASP-Dependency-Check/data/:/usr/share/dependency-check/data:rw --volume '${hostWs}'/odc-reports:/report:rw owasp/dependency-check:latest --scan /src --exclude '/src/.scannerwork/**' --format 'ALL' --project '${component}' --out /report -debug"
-			    echo "docker run executed-------------------"
+				    sh "docker run --rm --volume '${hostWs}':/src:rw --volume '${hostWs}'/OWASP-Dependency-Check/data/:/usr/share/dependency-check/data:rw --volume '${hostWs}'/odc-reports:/report:rw owasp/dependency-check:latest --scan /src --exclude '/src/.scannerwork/**' --format 'ALL' --project '${component}' --out /report -debug"
+				    echo "docker run executed-------------------"
 
-			    updateStatusInInsight("demo", "SAST OWASP-Dependency-Check", this)
-			  } catch(Exception e) {
-			   
-			    throw e
-			  }
-              }
-           }
+				    updateStatusInInsight("demo", "SAST OWASP-Dependency-Check", this)
+				} catch(Exception e) {
+
+				    throw e
+				}
+              		}
+           	}
         }
 	    
 	    
