@@ -63,15 +63,25 @@ pipeline {
         }
 	    
 	    
-         stage('DAST Scan') {
+         stage('DEPENDANCY Scan') {
                  steps {
 		       script{
-           		sh "chmod -R 777 /var/jenkins_home/zap"
-           		sh "cd /var/jenkins_home/zap && rm -rf *"
-			def hostWs = WORKSPACE.replaceAll('/var', '/var/jenkins_home')
+           		try {
+			    echo "=============================="
+			    echo "Starting Dependency Scan Stage"
+			    echo "==============================
+			    def hostWs = WORKSPACE
 
-			sh "docker run --rm --volume ${hostWs}:/src:z --volume /mountdisk/admingtoops/OWASP-Dependency-Check/data/:/usr/share/dependency-check/data:z --volume ${hostWs}/odc-reports:/report:z owasp/dependency-check:latest --scan /src --exclude '/src/.scannerwork/**' --out /report"
-           		
+			    print(hostWs + "-----------------------------+")
+
+			    sh "docker run --rm --volume '${hostWs}':/src:rw --volume '${hostWs}'/OWASP-Dependency-Check/data/:/usr/share/dependency-check/data:rw --volume '${hostWs}'/odc-reports:/report:rw owasp/dependency-check:latest --scan /src --exclude '/src/.scannerwork/**' --format 'ALL' --project '${component}' --out /report -debug"
+			    echo "docker run executed-------------------"
+
+			    updateStatusInInsight("demo", "SAST OWASP-Dependency-Check", this)
+			  } catch(Exception e) {
+			   
+			    throw e
+			  }
               }
            }
         }
