@@ -98,9 +98,9 @@ pipeline {
 		    def hostWs = WORKSPACE
 	            print(hostWs + "-----------------------------+")
 		    echo "=============================="
-		    sh "chmod -R 777 ${hostWs}/zap"
-                    sh "cd ${hostWs}/zap && rm -rf *"
-		    sh "docker run --rm -v ${hostWs}/zap:/zap/wrk/:rw -t owasp/zap2docker-stable zap-baseline.py -t ${application_url} -g gen.conf -x testreport.xml"
+		    sh "chmod -R 777 /var/jenkins_home/zap/"
+                    sh "cd /var/jenkins_home/zap/ && rm -rf *"
+		    sh "docker run --rm -v /var/jenkins_home/zap/:/zap/wrk/:rw -t owasp/zap2docker-stable zap-baseline.py -t ${application_url} -g gen.conf -x testreport.xml"
 		  } catch(Exception e) {
 		    throw e
 		  }
