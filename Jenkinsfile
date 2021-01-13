@@ -2,7 +2,7 @@ pipeline {
     environment { 
         registry = "chamathka202602/one" 
         registryCredential = 'docker-hub-credentials' 
-	dependancyCheckWorkDir = "/var/jenkins_home"
+	application_url = "http://10.128.0.42:8089/insightlive-dashboard/"
     }
 
     agent any 
@@ -87,8 +87,25 @@ pipeline {
            	}
         }
 	    
-	    
-	    
+	stage('DAST Scan') {
+	      agent any
+	      steps {
+		script {
+		  try {
+		    echo "=============================="
+		    echo "Starting Dependency Scan Stage"
+		    echo "=============================="
+		    def hostWs = WORKSPACE
+	            print(hostWs + "-----------------------------+")
+		    echo "=============================="
+		    sh "docker run --rm -v ${hostWs}/zap:/zap/wrk/:rw -t owasp/zap2docker-stable zap-baseline.py -t ${application_url} -g gen.conf -x testreport.xml"
+		  } catch(Exception e) {
+		    throw e
+		  }
+		}
+	      }
+	 }
+
          stage('Static Analysis'){
                  steps {
                     script {
