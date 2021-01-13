@@ -69,7 +69,7 @@ pipeline {
 				try {
 				    echo "=============================="
 				    echo "Starting Dependency Scan Stage"
-				    echo "==============================
+				    echo "=============================="
 				    def hostWs = WORKSPACE
 
 				    print(hostWs + "-----------------------------+")
