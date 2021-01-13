@@ -2,6 +2,7 @@ pipeline {
     environment { 
         registry = "chamathka202602/one" 
         registryCredential = 'docker-hub-credentials' 
+	dependancyCheckWorkDir = "/var/jenkins_home"
     }
 
     agent any 
@@ -67,7 +68,10 @@ pipeline {
 		       script{
            		sh "chmod -R 777 /var/jenkins_home/zap"
            		sh "cd /var/jenkins_home/zap && rm -rf *"
-           		sh "docker run --rm -v /var/jenkins_home/zap/:/zap/wrk/:rw -t owasp/zap2docker-stable zap-full-scan.py -i -t http://10.128.0.42:8089/insightlive-dashboard/ -g gen.conf -x testreport.xml"
+			def hostWs = WORKSPACE.replaceAll('/var', '/var/jenkins_home')
+
+			sh "docker run --rm --volume ${hostWs}:/src:z --volume /mountdisk/admingtoops/OWASP-Dependency-Check/data/:/usr/share/dependency-check/data:z --volume ${hostWs}/odc-reports:/report:z owasp/dependency-check:latest --scan /src --exclude '/src/.scannerwork/**' --out /report"
+           		
               }
            }
         }
