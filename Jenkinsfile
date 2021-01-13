@@ -74,7 +74,7 @@ pipeline {
 
 				    print(hostWs + "-----------------------------+")
 
-				    sh "docker run --rm --volume '${hostWs}':/src:rw --volume '${hostWs}'/OWASP-Dependency-Check/data/:/usr/share/dependency-check/data:rw --volume '${hostWs}'/odc-reports:/report:rw owasp/dependency-check:latest --scan /src --exclude '/src/.scannerwork/**' --format 'ALL' --project '${component}' --out /report -debug"
+				    sh "docker run --rm --volume '${hostWs}':/src:rw --volume '${hostWs}'/OWASP-Dependency-Check/data/:/usr/share/dependency-check/data:rw --volume '${hostWs}'/odc-reports:/report:rw owasp/dependency-check:latest --scan /src --exclude '/src/.scannerwork/**' --format 'ALL' --project 'demo' --out /report -debug"
 				    echo "docker run executed-------------------"
 
 				    updateStatusInInsight("demo", "SAST OWASP-Dependency-Check", this)
