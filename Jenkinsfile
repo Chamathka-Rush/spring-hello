@@ -35,6 +35,8 @@ pipeline {
                                 credentialsId: 'github-credentials',
                                 poll: true
                         )
+				def end_time = getTimestamp()
+                        	def onEnd = JsonOutput.toJson([application_name: "${application_name}", sonar_project_key: "${sonar_project_key}", repository: "${repository}", branch: "${code_branch}", stage_checkout_start_time: end_time, overall_status: "Executing", link: "${link}", end_time: end_time, build_number: "${env.BUILD_NUMBER}", id: "${id}", current_stage: "Checkout", job: "${job}", stage_checkout_status: "Passed", timestamp: end_time])
                         	sendDevopsData(onEnd, "${insightlive_ci_url}")
 			} catch (Exception e){
                         	def onError = JsonOutput.toJson([application_name: "${application_name}", sonar_project_key: "${sonar_project_key}", repository: "${repository}", branch: "${code_branch}", stage_checkout_end_time: end_time, overall_status: "Executing", link: "${link}", end_time: end_time, build_number: "${env.BUILD_NUMBER}", id: "${id}", current_stage: "Checkout", job: "${job}", stage_checkout_status: "Error", timestamp: end_time])
@@ -55,6 +57,11 @@ pipeline {
 			
                     dockerImage = docker.build("${registry}:$BUILD_NUMBER")
                     echo "${dockerImage}"
+			
+		    def end_time = getTimestamp()
+                    def onEnd = JsonOutput.toJson([application_name: "${application_name}", sonar_project_key: "${sonar_project_key}", repository: "${repository}", branch: "${code_branch}", overall_status: "Executing", link: "${link}", end_time: end_time, build_number: "${env.BUILD_NUMBER}", stage_dockerbuild_end_time: end_time, id: "${id}", current_stage: "Docker Build", job: "${job}", stage_dockerbuild_status: "Passed", timestamp: end_time])
+                    echo onEnd
+                    sendDevopsData(onEnd, "${insightlive_ci_url}")
                 }
             } 
         }
