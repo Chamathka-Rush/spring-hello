@@ -6,47 +6,47 @@ pipeline {
     environment { 
         registry = "chamathka202602/one" 
         registryCredential = 'docker-hub-credentials'
-	application_name = "InsightLive"
-	application_url = "http://10.128.0.42:8089/insightlive-dashboard/"
-	insightlive_ci_url = "http://10.128.0.42:8087/devops/api/ci/upsert-ci-data"
+		application_name = "InsightLive"
+		application_url = "http://10.128.0.42:8089/insightlive-dashboard/"
+		insightlive_ci_url = "http://10.128.0.42:8087/devops/api/ci/upsert-ci-data"
         insightlive_md_url = "http://10.128.0.42:8087/devops/api/md/upsert-md-data"
         insightlive_cd_url = "http://10.128.0.42:8087/devops/api/cd/upsert-cd-data"
-	sonar_project_key = "demo"
-	repository = "https://github.com/Chamathka-Rush/spring-hello.git"
-	code_branch = "main"
-	component = "demo"
+		sonar_project_key = "demo"
+		repository = "https://github.com/Chamathka-Rush/spring-hello.git"
+		code_branch = "main"
+		component = "demo"
     }
 
     agent any 
     stages { 
         stage('Checkout') { 
             steps { 
-		script{
-			job = "${env.JOB_NAME}".contains("/") ? "${env.JOB_NAME}".split("/")[1] : "${env.JOB_NAME}"
-			link = "${env.JOB_URL}".replaceAll("${env.JENKINS_URL}", "") + "${env.BUILD_NUMBER}"
-			id = application_name + "-" + component + "#" + "${env.BUILD_NUMBER}"
-			try{
-				currentComponent.id = "${id}"
-				def timestamp = getTimestamp()
-				def onStart = JsonOutput.toJson([application_name: "${application_name}", sonar_project_key: "${sonar_project_key}", repository: "${repository}", branch: "${code_branch}", stage_checkout_start_time: timestamp, overall_status: "Executing", link: "${link}", build_number: "${env.BUILD_NUMBER}", id: "${id}", current_stage: "Checkout", job: "${job}", stage_checkout_status: "Executing", timestamp: timestamp])
-				echo onStart;
-				sendDevopsData(onStart, "${insightlive_ci_url}")
-			git(
-                                url: 'https://github.com/Chamathka-Rush/spring-hello.git',
-				branch: 'main',
-                                changelog: false,
-                                credentialsId: 'github-credentials',
-                                poll: true
-                        )
-				def end_time = getTimestamp()
-                        	def onEnd = JsonOutput.toJson([application_name: "${application_name}", sonar_project_key: "${sonar_project_key}", repository: "${repository}", branch: "${code_branch}", stage_checkout_start_time: end_time, overall_status: "Executing", link: "${link}", end_time: end_time, build_number: "${env.BUILD_NUMBER}", id: "${id}", current_stage: "Checkout", job: "${job}", stage_checkout_status: "Passed", timestamp: end_time])
-                        	sendDevopsData(onEnd, "${insightlive_ci_url}")
-			} catch (Exception e){
-                        	def onError = JsonOutput.toJson([application_name: "${application_name}", sonar_project_key: "${sonar_project_key}", repository: "${repository}", branch: "${code_branch}", stage_checkout_end_time: end_time, overall_status: "Executing", link: "${link}", end_time: end_time, build_number: "${env.BUILD_NUMBER}", id: "${id}", current_stage: "Checkout", job: "${job}", stage_checkout_status: "Error", timestamp: end_time])
-                        	sendDevopsData(onError, "${insightlive_ci_url}")
-                        	throw e
-			}
-		  }
+			script{
+				job = "${env.JOB_NAME}".contains("/") ? "${env.JOB_NAME}".split("/")[1] : "${env.JOB_NAME}"
+				link = "${env.JOB_URL}".replaceAll("${env.JENKINS_URL}", "") + "${env.BUILD_NUMBER}"
+				id = application_name + "-" + component + "#" + "${env.BUILD_NUMBER}"
+				try{
+					currentComponent.id = "${id}"
+					def timestamp = getTimestamp()
+					def onStart = JsonOutput.toJson([application_name: "${application_name}", sonar_project_key: "${sonar_project_key}", repository: "${repository}", branch: "${code_branch}", stage_checkout_start_time: timestamp, overall_status: "Executing", link: "${link}", build_number: "${env.BUILD_NUMBER}", id: "${id}", current_stage: "Checkout", job: "${job}", stage_checkout_status: "Executing", timestamp: timestamp])
+					echo onStart;
+					sendDevopsData(onStart, "${insightlive_ci_url}")
+				git(
+					url: 'https://github.com/Chamathka-Rush/spring-hello.git',
+					branch: 'main',
+									changelog: false,
+									credentialsId: 'github-credentials',
+									poll: true
+							)
+					def end_time = getTimestamp()
+								def onEnd = JsonOutput.toJson([application_name: "${application_name}", sonar_project_key: "${sonar_project_key}", repository: "${repository}", branch: "${code_branch}", stage_checkout_start_time: end_time, overall_status: "Executing", link: "${link}", end_time: end_time, build_number: "${env.BUILD_NUMBER}", id: "${id}", current_stage: "Checkout", job: "${job}", stage_checkout_status: "Passed", timestamp: end_time])
+								sendDevopsData(onEnd, "${insightlive_ci_url}")
+				} catch (Exception e){
+								def onError = JsonOutput.toJson([application_name: "${application_name}", sonar_project_key: "${sonar_project_key}", repository: "${repository}", branch: "${code_branch}", stage_checkout_end_time: end_time, overall_status: "Executing", link: "${link}", end_time: end_time, build_number: "${env.BUILD_NUMBER}", id: "${id}", current_stage: "Checkout", job: "${job}", stage_checkout_status: "Error", timestamp: end_time])
+								sendDevopsData(onError, "${insightlive_ci_url}")
+								throw e
+				}
+			  }
             }
         } 
 
@@ -136,31 +136,31 @@ pipeline {
 	stage('DAST Scan') {
 	      agent any
 	      steps {
-		script {
-		  try {
-		    echo "=============================="
-		    echo "Starting Dependency Scan Stage"
-		    echo "=============================="
-		    def hostWs = WORKSPACE
-	            print(hostWs + "-----------------------------+")
-		    echo "=============================="
-		    def start_timestamp = getTimestamp()
-                    def onStart = JsonOutput.toJson([application_name: "${application_name}", sonar_project_key: "${sonar_project_key}", repository: "${repository}", branch: "${code_branch}", stage_dast_status: "Executing", overall_status: "Executing", link: "${link}", build_number: "${env.BUILD_NUMBER}", id: "${id}", current_stage: "DAST Scan", job: "${job}", stage_dast_start_time: start_timestamp, timestamp: start_timestamp])
-                    echo onStart;
-                    sendDevopsData(onStart, "${insightlive_ci_url}")
-		    sh "chmod -R 777 /var/jenkins_home/zap"
-                    sh "cd /var/jenkins_home/zap && rm -rf *"
-                    sh "docker run --rm -v /var/jenkins_home/zap/:/zap/wrk/:rw -t owasp/zap2docker-stable zap-full-scan.py -i -t http://10.128.0.42:8089/insightlive-dashboard/ -g gen.conf -x testreport.xml"
-		    def end_time = getTimestamp()
-                    def onEnd = JsonOutput.toJson([application_name: "${application_name}", sonar_project_key: "${sonar_project_key}", repository: "${repository}", branch: "${code_branch}", stage_dast_status: "Passed", overall_status: "Executing", link: "${link}", build_number: "${env.BUILD_NUMBER}", id: "${id}", current_stage: "DAST Scan", job: "${job}", stage_dast_end_time: end_time, timestamp: end_time])
-                    sendDevopsData(onEnd, "${insightlive_ci_url}")
-		  } catch(Exception e) {
-		    def end_time = getTimestamp()
-                        def onError = JsonOutput.toJson([application_name: "${application_name}", sonar_project_key: "${sonar_project_key}", repository: "${repository}", branch: "${code_branch}", stage_dast_status: "Failed", overall_status: "Executing", link: "${link}", build_number: "${env.BUILD_NUMBER}", id: "${id}", current_stage: "DAST Scan", job: "${job}", stage_dast_end_time: end_time, timestamp: end_time])
-                        echo onError;
-                        sendDevopsData(onError, "${insightlive_ci_url}")
-		  }
-		}
+			script {
+			  try {
+				echo "=============================="
+				echo "Starting Dependency Scan Stage"
+				echo "=============================="
+				def hostWs = WORKSPACE
+					print(hostWs + "-----------------------------+")
+				echo "=============================="
+				def start_timestamp = getTimestamp()
+						def onStart = JsonOutput.toJson([application_name: "${application_name}", sonar_project_key: "${sonar_project_key}", repository: "${repository}", branch: "${code_branch}", stage_dast_status: "Executing", overall_status: "Executing", link: "${link}", build_number: "${env.BUILD_NUMBER}", id: "${id}", current_stage: "DAST Scan", job: "${job}", stage_dast_start_time: start_timestamp, timestamp: start_timestamp])
+						echo onStart;
+						sendDevopsData(onStart, "${insightlive_ci_url}")
+				sh "chmod -R 777 /var/jenkins_home/zap"
+						sh "cd /var/jenkins_home/zap && rm -rf *"
+						sh "docker run --rm -v /var/jenkins_home/zap/:/zap/wrk/:rw -t owasp/zap2docker-stable zap-full-scan.py -i -t http://10.128.0.42:8089/insightlive-dashboard/ -g gen.conf -x testreport.xml"
+				def end_time = getTimestamp()
+						def onEnd = JsonOutput.toJson([application_name: "${application_name}", sonar_project_key: "${sonar_project_key}", repository: "${repository}", branch: "${code_branch}", stage_dast_status: "Passed", overall_status: "Executing", link: "${link}", build_number: "${env.BUILD_NUMBER}", id: "${id}", current_stage: "DAST Scan", job: "${job}", stage_dast_end_time: end_time, timestamp: end_time])
+						sendDevopsData(onEnd, "${insightlive_ci_url}")
+			  } catch(Exception e) {
+				def end_time = getTimestamp()
+							def onError = JsonOutput.toJson([application_name: "${application_name}", sonar_project_key: "${sonar_project_key}", repository: "${repository}", branch: "${code_branch}", stage_dast_status: "Failed", overall_status: "Executing", link: "${link}", build_number: "${env.BUILD_NUMBER}", id: "${id}", current_stage: "DAST Scan", job: "${job}", stage_dast_end_time: end_time, timestamp: end_time])
+							echo onError;
+							sendDevopsData(onError, "${insightlive_ci_url}")
+			  }
+			}
 	      }
 	 }
 
@@ -187,31 +187,31 @@ pipeline {
                     }
                 }
             }
-	    post {
-		always {
-		    script {
-			echo "============="
-			echo "Starting Post"
-			echo "============="
-			def end_timestamp = getTimestamp()
-			def finalResult = "Passed"
-			def result = currentBuild.currentResult
-			echo result
+    }
+	post {
+			always {
+				script {
+				echo "============="
+				echo "Starting Post"
+				echo "============="
+				def end_timestamp = getTimestamp()
+				def finalResult = "Passed"
+				def result = currentBuild.currentResult
+				echo result
 
-			if (result.toLowerCase() == 'failure') {
-			    finalResult = "Failed"
-			} else if (result.toLowerCase() == 'success') {
-			    finalResult = "Passed"
-			} else {
-			    finalResult = "Aborted"
+				if (result.toLowerCase() == 'failure') {
+					finalResult = "Failed"
+				} else if (result.toLowerCase() == 'success') {
+					finalResult = "Passed"
+				} else {
+					finalResult = "Aborted"
+				}
+				def onEnd = JsonOutput.toJson([overall_status: finalResult, id: "${currentComponent.id}", timestamp: end_timestamp, end_time: end_timestamp])
+				echo onEnd;
+				sendDevopsData(onEnd, "${insightlive_ci_url}")
+				}
 			}
-			def onEnd = JsonOutput.toJson([overall_status: finalResult, id: "${currentComponent.id}", timestamp: end_timestamp, end_time: end_timestamp])
-			echo onEnd;
-			sendDevopsData(onEnd, "${insightlive_ci_url}")
-		    }
-        }
-    }
-    }
+		}
 }
 
 def updateStatusInInsight(String projectKey, String Stage){
