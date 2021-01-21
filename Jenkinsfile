@@ -194,6 +194,7 @@ def sendDevopsData(String data, String url) {
                 httpMode: 'POST',
                 requestBody: "${data}",
                 url: "${url}"
+	echo("Updated insight")
     } catch(Exception e) {
         echo(e.toString())
         echo("Could not send data to devops")
