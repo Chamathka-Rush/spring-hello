@@ -25,9 +25,12 @@ pipeline {
 			job = "${env.JOB_NAME}".contains("/") ? "${env.JOB_NAME}".split("/")[1] : "${env.JOB_NAME}"
 			link = "${env.JOB_URL}".replaceAll("${env.JENKINS_URL}", "") + "${env.BUILD_NUMBER}"
 			id = application_name + "-" + component + "#" + "${env.BUILD_NUMBER}"
-			def end_time = getTimestamp()
-                        def onEnd = JsonOutput.toJson([application_name: "${application_name}", sonar_project_key: "${sonar_project_key}", repository: "${repository}", branch: "${code_branch}", stage_checkout_start_time: end_time, overall_status: "Executing", link: "${link}", end_time: end_time, build_number: "${env.BUILD_NUMBER}", id: "${id}", current_stage: "Checkout", job: "${job}", stage_checkout_status: "Passed", timestamp: end_time])
 			try{
+				currentComponent.id = "${id}"
+				def timestamp = getTimestamp()
+				def onStart = JsonOutput.toJson([application_name: "${application_name}", sonar_project_key: "${sonar_project_key}", repository: "${repository}", branch: "${code_branch}", stage_checkout_start_time: timestamp, overall_status: "Executing", link: "${link}", build_number: "${env.BUILD_NUMBER}", id: "${id}", current_stage: "Checkout", job: "${job}", stage_checkout_status: "Executing", timestamp: timestamp])
+				echo onStart;
+				sendDevopsData(onStart, "${insightlive_ci_url}")
 			git(
                                 url: 'https://github.com/Chamathka-Rush/spring-hello.git',
 				branch: 'main',
