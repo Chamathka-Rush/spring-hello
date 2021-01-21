@@ -1,3 +1,7 @@
+import groovy.json.JsonOutput
+ 
+def currentComponent = [: ]
+
 pipeline { 
     environment { 
         registry = "chamathka202602/one" 
