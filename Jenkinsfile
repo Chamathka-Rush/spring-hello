@@ -144,11 +144,21 @@ pipeline {
 		    def hostWs = WORKSPACE
 	            print(hostWs + "-----------------------------+")
 		    echo "=============================="
+		    def start_timestamp = getTimestamp()
+                    def onStart = JsonOutput.toJson([application_name: "${application_name}", sonar_project_key: "${sonar_project_key}", repository: "${repository}", branch: "${code_branch}", stage_dast_status: "Executing", overall_status: "Executing", link: "${link}", build_number: "${env.BUILD_NUMBER}", id: "${id}", current_stage: "DAST Scan", job: "${job}", stage_dast_start_time: start_timestamp, timestamp: start_timestamp])
+                    echo onStart;
+                    sendDevopsData(onStart, "${insightlive_ci_url}")
 		    sh "chmod -R 777 /var/jenkins_home/zap"
                     sh "cd /var/jenkins_home/zap && rm -rf *"
                     sh "docker run --rm -v /var/jenkins_home/zap/:/zap/wrk/:rw -t owasp/zap2docker-stable zap-full-scan.py -i -t http://10.128.0.42:8089/insightlive-dashboard/ -g gen.conf -x testreport.xml"
+		    def end_time = getTimestamp()
+                    def onEnd = JsonOutput.toJson([application_name: "${application_name}", sonar_project_key: "${sonar_project_key}", repository: "${repository}", branch: "${code_branch}", stage_dast_status: "Passed", overall_status: "Executing", link: "${link}", build_number: "${env.BUILD_NUMBER}", id: "${id}", current_stage: "DAST Scan", job: "${job}", stage_dast_end_time: end_time, timestamp: end_time])
+                    sendDevopsData(onEnd, "${insightlive_ci_url}")
 		  } catch(Exception e) {
-		    throw e
+		    def end_time = getTimestamp()
+                        def onError = JsonOutput.toJson([application_name: "${application_name}", sonar_project_key: "${sonar_project_key}", repository: "${repository}", branch: "${code_branch}", stage_dast_status: "Failed", overall_status: "Executing", link: "${link}", build_number: "${env.BUILD_NUMBER}", id: "${id}", current_stage: "DAST Scan", job: "${job}", stage_dast_end_time: end_time, timestamp: end_time])
+                        echo onError;
+                        sendDevopsData(onError, "${insightlive_ci_url}")
 		  }
 		}
 	      }
@@ -158,14 +168,49 @@ pipeline {
                  steps {
                     script {
                         try {
+			    def start_timestamp = getTimestamp()
+                            def onStart = JsonOutput.toJson([application_name: "${application_name}", sonar_project_key: "${sonar_project_key}", repository: "${repository}", branch: "${code_branch}", stage_sast_sonar_status: "Executing", overall_status: "Executing", link: "${link}", build_number: "${env.BUILD_NUMBER}", id: "${id}", current_stage: "Static Analysis", job: "${job}", stage_sast_sonar_start_time: start_timestamp, timestamp: start_timestamp])
+                            sendDevopsData(onStart, "${insightlive_ci_url}")
                             sh "sh /var/jenkins_home/sonar-scanner-3.2.0.1227-linux/bin/sonar-scanner -Dsonar.login=a77ef296422c3e04cdf03d0c0e53547f9b260f2c -Dsonar.projectBaseDir=. -Dsonar.dependencyCheck.htmlReportPath=odc-reports/dependency-check-report.html -Dsonar.dependencyCheck.jsonReportPath=odc-reports/dependency-check-report.json -Dsonar.projectKey=demo -Dsonar.sources=. -Dsonar.java.binaries=. -DtoolStackRulesPath=/var/jenkins_home/Rules/tool_stack_rules.xml -DserviceComplianceRulesPath=/var/jenkins_home/Rules/service_compliance_rules.xml -DanchoreJsonParser=/var/jenkins_home/Rules/anchoreengine-api-response-vulnerabilities-1.json -DconfigurationRulesPath=/var/jenkins_home/Rules/config_compliance_rules.xml -DcicdComplianceRulesPath=/var/jenkins_home/Rules/ci-cd_compliance_rules.xml -DarchitectureComplianceReportPath=/var/jenkins_home/Rules/jqassistant/reports/jqassistant-report.xml -Dsonar.zaproxy.reportPath=/var/jenkins_home/zap/testreport.xml"
+			    def end_time = getTimestamp()
+                            def onEnd = JsonOutput.toJson([stage_sast_sonar_end_time: end_time, application_name: "${application_name}", sonar_project_key: "${sonar_project_key}", repository: "${repository}", branch: "${code_branch}", stage_sast_sonar_status: "Passed", overall_status: "Executing", link: "${link}", end_time: end_time, build_number: "${env.BUILD_NUMBER}", id: "${id}", current_stage: "Static Analysis", job: "${job}", timestamp: end_time])
+                            echo onEnd;
+                            sendDevopsData(onEnd, "${insightlive_ci_url}")
 			    updateStatusInInsight("demo", "AST Sonar Static Code Analyser")
                         } catch (Exception e) {
-                            throw e
+                            def end_time = getTimestamp()
+                        def onError = JsonOutput.toJson([stage_sast_sonar_end_time: end_time, application_name: "${application_name}", sonar_project_key: "${sonar_project_key}", repository: "${repository}", branch: "${code_branch}", stage_sast_sonar_status: "Failed", overall_status: "Executing", link: "${link}", end_time: end_time, build_number: "${env.BUILD_NUMBER}", id: "${id}", current_stage: "Static Analysis", job: "${job}", timestamp: end_time])
+                        echo onError;
+                        sendDevopsData(onError, "${insightlive_ci_url}")
+                        throw e
                         }
                     }
                 }
             }
+	    post {
+		always {
+		    script {
+			echo "============="
+			echo "Starting Post"
+			echo "============="
+			def end_timestamp = getTimestamp()
+			def finalResult = "Passed"
+			def result = currentBuild.currentResult
+			echo result
+
+			if (result.toLowerCase() == 'failure') {
+			    finalResult = "Failed"
+			} else if (result.toLowerCase() == 'success') {
+			    finalResult = "Passed"
+			} else {
+			    finalResult = "Aborted"
+			}
+			def onEnd = JsonOutput.toJson([overall_status: finalResult, id: "${currentComponent.id}", timestamp: end_timestamp, end_time: end_timestamp])
+			echo onEnd;
+			sendDevopsData(onEnd, "${insightlive_ci_url}")
+		    }
+        }
+    }
     }
 }
 
