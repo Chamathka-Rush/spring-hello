@@ -1,8 +1,12 @@
 pipeline { 
     environment { 
         registry = "chamathka202602/one" 
-        registryCredential = 'docker-hub-credentials' 
+        registryCredential = 'docker-hub-credentials'
+	application_name = "InsightLive"
 	application_url = "http://10.128.0.42:8089/insightlive-dashboard/"
+	sonar_project_key = "demo"
+	repository = "https://github.com/Chamathka-Rush/spring-hello.git"
+	code_branch = "main"
     }
 
     agent any 
@@ -10,6 +14,11 @@ pipeline {
         stage('Checkout') { 
             steps { 
 		script{
+			job = "${env.JOB_NAME}".contains("/") ? "${env.JOB_NAME}".split("/")[1] : "${env.JOB_NAME}"
+			link = "${env.JOB_URL}".replaceAll("${env.JENKINS_URL}", "") + "${env.BUILD_NUMBER}"
+			id = application_name + "-" + component + "#" + "${env.BUILD_NUMBER}"
+			def end_time = getTimestamp()
+                        def onEnd = JsonOutput.toJson([application_name: "${application_name}", sonar_project_key: "${sonar_project_key}", repository: "${repository}", branch: "${code_branch}", stage_checkout_start_time: end_time, overall_status: "Executing", link: "${link}", end_time: end_time, build_number: "${env.BUILD_NUMBER}", id: "${id}", current_stage: "Checkout", job: "${job}", stage_checkout_status: "Passed", timestamp: end_time])
 			try{
 			git(
                                 url: 'https://github.com/Chamathka-Rush/spring-hello.git',
@@ -17,9 +26,13 @@ pipeline {
                                 changelog: false,
                                 credentialsId: 'github-credentials',
                                 poll: true
-                        )  	
+                        )
+                        	sendDevopsData(onEnd, "${application_url}")
 			} catch (Exception e){
-				throw e
+				def end_time = getTimestamp()
+                        	def onError = JsonOutput.toJson([application_name: "${application_name}", sonar_project_key: "${sonar_project_key}", repository: "${repository}", branch: "${code_branch}", stage_checkout_end_time: end_time, overall_status: "Executing", link: "${link}", end_time: end_time, build_number: "${env.BUILD_NUMBER}", id: "${id}", current_stage: "Checkout", job: "${job}", stage_checkout_status: "Error", timestamp: end_time])
+                        	sendDevopsData(onError, "${insightlive_ci_url}")
+                        	throw e
 			}
 		  }
             }
@@ -120,9 +133,6 @@ pipeline {
                     }
                 }
             }
-	    
-	 
-         
     }
 }
 
@@ -149,7 +159,6 @@ def updateStatusInInsight(String projectKey, String Stage){
   }
     
 }
-
 
 def getTimestamp() {
     return System.currentTimeMillis();
