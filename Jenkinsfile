@@ -4,9 +4,9 @@ pipeline {
         registryCredential = 'docker-hub-credentials'
 	application_name = "InsightLive"
 	application_url = "http://10.128.0.42:8089/insightlive-dashboard/"
-	insightlive_ci_url = "http://10.128.1.33:8087/devops/api/ci/upsert-ci-data"
-        insightlive_md_url = "http://10.128.1.33:8087/devops/api/md/upsert-md-data"
-        insightlive_cd_url = "http://10.128.1.33:8087/devops/api/cd/upsert-cd-data"
+	insightlive_ci_url = "http://10.128.0.42:8087/devops/api/ci/upsert-ci-data"
+        insightlive_md_url = "http://10.128.0.42:8087/devops/api/md/upsert-md-data"
+        insightlive_cd_url = "http://10.128.0.42:8087/devops/api/cd/upsert-cd-data"
 	sonar_project_key = "demo"
 	repository = "https://github.com/Chamathka-Rush/spring-hello.git"
 	code_branch = "main"
