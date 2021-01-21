@@ -10,6 +10,7 @@ pipeline {
 	sonar_project_key = "demo"
 	repository = "https://github.com/Chamathka-Rush/spring-hello.git"
 	code_branch = "main"
+	component = "demo"
     }
 
     agent any 
