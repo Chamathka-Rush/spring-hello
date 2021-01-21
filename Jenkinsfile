@@ -4,6 +4,9 @@ pipeline {
         registryCredential = 'docker-hub-credentials'
 	application_name = "InsightLive"
 	application_url = "http://10.128.0.42:8089/insightlive-dashboard/"
+	insightlive_ci_url = "http://10.128.1.33:8087/devops/api/ci/upsert-ci-data"
+        insightlive_md_url = "http://10.128.1.33:8087/devops/api/md/upsert-md-data"
+        insightlive_cd_url = "http://10.128.1.33:8087/devops/api/cd/upsert-cd-data"
 	sonar_project_key = "demo"
 	repository = "https://github.com/Chamathka-Rush/spring-hello.git"
 	code_branch = "main"
@@ -27,7 +30,7 @@ pipeline {
                                 credentialsId: 'github-credentials',
                                 poll: true
                         )
-                        	sendDevopsData(onEnd, "${application_url}")
+                        	sendDevopsData(onEnd, "${insightlive_ci_url}")
 			} catch (Exception e){
                         	def onError = JsonOutput.toJson([application_name: "${application_name}", sonar_project_key: "${sonar_project_key}", repository: "${repository}", branch: "${code_branch}", stage_checkout_end_time: end_time, overall_status: "Executing", link: "${link}", end_time: end_time, build_number: "${env.BUILD_NUMBER}", id: "${id}", current_stage: "Checkout", job: "${job}", stage_checkout_status: "Error", timestamp: end_time])
                         	sendDevopsData(onError, "${insightlive_ci_url}")
