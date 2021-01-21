@@ -90,6 +90,10 @@ pipeline {
 				    echo "=============================="
 				    echo "Starting Dependency Scan Stage"
 				    echo "=============================="
+				    def start_timestamp = getTimestamp()
+                        	    def onStart = JsonOutput.toJson([application_name: "${application_name}", sonar_project_key: "${sonar_project_key}", repository: "${repository}", branch: "${code_branch}", stage_sast_odc_start_time: start_timestamp, overall_status: "Executing", link: "${link}", build_number: "${env.BUILD_NUMBER}", id: "${id}", current_stage: "Dependency Scan", job: "${job}", stage_sast_odc_status: "Executing", timestamp: start_timestamp])
+                        	    sendDevopsData(onStart, "${insightlive_ci_url}")
+					
 				    sh "rm -rf ./.scannerwork"
 				    def hostWs = WORKSPACE
 
@@ -98,9 +102,16 @@ pipeline {
 				    sh "docker run --rm --volume '${hostWs}':/src:rw --volume '${hostWs}'/OWASP-Dependency-Check/data/:/usr/share/dependency-check/data:rw --volume '${hostWs}'/odc-reports:/report:rw owasp/dependency-check:latest --scan /src --exclude '/src/.scannerwork/**' --format 'ALL' --project 'demo' --out /report -debug"
 				    echo "docker run executed-------------------"
 
+				    def end_time = getTimestamp()
+                        	    def onEnd = JsonOutput.toJson([application_name: "${application_name}", sonar_project_key: "${sonar_project_key}", repository: "${repository}", branch: "${code_branch}", stage_sast_odc_end_time: end_time, overall_status: "Executing", link: "${link}", build_number: "${env.BUILD_NUMBER}", id: "${id}", current_stage: "Dependency Scan", job: "${job}", stage_sast_odc_status: "Passed", timestamp: end_time])
+                        	    echo onEnd;
+                        	    sendDevopsData(onEnd, "${insightlive_ci_url}")
 				    updateStatusInInsight("demo", "SAST OWASP-Dependency-Check")
 				} catch(Exception e) {
-
+				    def end_time = getTimestamp()
+				    def onError = JsonOutput.toJson([application_name: "${application_name}", sonar_project_key: "${sonar_project_key}", repository: "${repository}", branch: "${code_branch}", stage_sast_odc_end_time: end_time, overall_status: "Executing", link: "${link}", build_number: "${env.BUILD_NUMBER}", id: "${id}", current_stage: "Dependency Scan", job: "${job}", stage_sast_odc_status: "Error", timestamp: end_time])
+				    echo onError;
+				    sendDevopsData(onError, "${insightlive_ci_url}")
 				    throw e
 				}
               		}
