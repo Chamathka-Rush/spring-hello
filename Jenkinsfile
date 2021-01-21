@@ -47,7 +47,12 @@ pipeline {
 
         stage('Docker Build') { 
             steps { 
-                script { 
+                script {
+		   def start_timestamp = getTimestamp()
+                   def onStart = JsonOutput.toJson([application_name: "${application_name}", sonar_project_key: "${sonar_project_key}", repository: "${repository}", branch: "${code_branch}", stage_dockerbuild_start_time: start_timestamp, overall_status: "Executing", link: "${link}", build_number: "${env.BUILD_NUMBER}", id: "${id}", current_stage: "Docker Build", job: "${job}", stage_dockerbuild_status: "Executing", timestamp: start_timestamp])
+                   echo onStart
+                   sendDevopsData(onStart, "${insightlive_ci_url}")
+			
                     dockerImage = docker.build("${registry}:$BUILD_NUMBER")
                     echo "${dockerImage}"
                 }
