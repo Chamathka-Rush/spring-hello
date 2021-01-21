@@ -149,3 +149,21 @@ def updateStatusInInsight(String projectKey, String Stage){
   }
     
 }
+
+
+def getTimestamp() {
+    return System.currentTimeMillis();
+}
+
+def sendDevopsData(String data, String url) {
+    try {
+        httpRequest consoleLogResponseBody: true,
+                contentType: 'APPLICATION_JSON',
+                httpMode: 'POST',
+                requestBody: "${data}",
+                url: "${url}"
+    } catch(Exception e) {
+        echo(e.toString())
+        echo("Could not send data to devops")
+    }
+}
