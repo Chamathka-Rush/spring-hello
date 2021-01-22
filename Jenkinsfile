@@ -50,6 +50,64 @@ pipeline {
             }
         } 
 
+	    stage('Build') {
+            agent any
+            steps {
+                script {
+                    try {
+                        echo "===================="
+                        echo "Starting Build Stage"
+                        echo "===================="
+                        sh 'ls -lrt'
+                        //For An Application Total build
+                        def total_build_start_time = getTimestamp()
+                        def totalBuildOnStart = JsonOutput.toJson([sonar_project_key: "${sonar_project_key}", start_time: total_build_start_time, application_name: "${application_name}", link: "${link}", build_number: "${env.BUILD_NUMBER}", id: "${id}", job: "${job}", timestamp: total_build_start_time, status: "Executing"])
+                        echo totalBuildOnStart;
+                        sendDevopsData(totalBuildOnStart, "${insightlive_md_url}")
+ 
+                        //For Each component for ci
+                        def start_timestamp = getTimestamp()
+                        def onStart = JsonOutput.toJson([application_name: "${application_name}", sonar_project_key: "${sonar_project_key}", stage_build_status: "Executing", overall_status: "Executing", link: "${link}", stage_build_start_time: start_timestamp, build_number: "${env.BUILD_NUMBER}", id: "${id}", current_stage: "Build", job: "${job}", timestamp: start_timestamp, repository: "${repository}", branch: "${code_branch}"])
+                        echo onStart;
+                        sendDevopsData(onStart, "${insightlive_ci_url}")
+ 
+                        sh "mvn clean install"
+ 
+                        def end_time = getTimestamp()
+                        def onEnd = JsonOutput.toJson([application_name: "${application_name}", sonar_project_key: "${sonar_project_key}", repository: "${repository}", branch: "${code_branch}", stage_build_status: "Passed", overall_status: "Executing", link: "${link}", stage_build_end_time: end_time, build_number: "${env.BUILD_NUMBER}", id: "${id}", current_stage: "Build", job: "${job}", timestamp: end_time])
+                        echo onEnd;
+                        sendDevopsData(onEnd, "${insightlive_ci_url}")
+ 
+                        //For An Application End
+                        def total_build_end_time = getTimestamp()
+                        def totalBuildOnEnd = JsonOutput.toJson([end_time: total_build_end_time, application_name: "${application_name}", link: "${link}", build_number: "${env.BUILD_NUMBER}", id: "${id}", job: "${job}", timestamp: total_build_end_time, status: "Passed"])
+                        echo totalBuildOnEnd;
+                        sendDevopsData(totalBuildOnEnd, "${insightlive_md_url}")
+ 
+                        echo "==========================="
+                        echo "Starting Unit Tests Results"
+                        echo "==========================="
+                        postUnitTestsResults(this)
+ 
+                    } catch(Exception e) {
+                        def end_time = getTimestamp()
+                        def onError = JsonOutput.toJson([application_name: "${application_name}", sonar_project_key: "${sonar_project_key}", repository: "${repository}", branch: "${code_branch}", stage_build_status: "Failed", overall_status: "Executing", link: "${link}", stage_build_end_time: end_time, build_number: "${env.BUILD_NUMBER}", id: "${id}", current_stage: "Build", job: "${job}", timestamp: end_time])
+                        echo onError;
+                        sendDevopsData(onError, "${insightlive_ci_url}")
+                        //For An Application End
+                        def total_build_end_time = getTimestamp()
+                        def totalBuildOnStart = JsonOutput.toJson([end_time: total_build_end_time, application_name: "${application_name}", link: "${link}", build_number: "${env.BUILD_NUMBER}", id: "${id}", job: "${job}", timestamp: total_build_end_time, status: "Failed"])
+                        echo totalBuildOnStart;
+                        sendDevopsData(totalBuildOnStart, "${insightlive_md_url}")
+                        throw e
+                    }
+                }
+            }
+        }
+
+
+
+
         stage('Docker Build') { 
             steps { 
                 script {
@@ -255,3 +313,57 @@ def sendDevopsData(String data, String url) {
         echo("Could not send data to devops")
     }
 }
+
+def postUnitTestsResults(script) {
+    try {
+        def stat_timestamp = getTimestamp()
+        def onStart = JsonOutput.toJson([application_name: "${script.application_name}", sonar_project_key: "${script.sonar_project_key}", repository: "${script.repository}", branch: "${script.code_branch}", overall_status: "Executing", link: "${script.link}", build_number: "${script.env.BUILD_NUMBER}", stage_unittest_start_time: stat_timestamp, id: "${script.id}", current_stage: "Unit Test", stage_unittest_status: "Executing", job: "${script.job}", timestamp: stat_timestamp])
+        echo onStart;
+        sendDevopsData(onStart, "${insightlive_ci_url}")
+        def unitTestData = [: ]
+        unitTestData.runs = 0
+        unitTestData.errors = 0
+        unitTestData.skips = 0
+        unitTestData.failures = 0
+        unitTestData.success = 0
+        unitTestData.duration = 0
+        def files = findFiles(glob: '**/TEST-*.xml')
+        echo "files - " + files;
+ 
+        for (def file: files) {
+            println("Processing test file -> ${file.path}")
+ 
+            def fileContents = new File(script.env.WORKSPACE + '/' + file.path).getText("UTF-8").trim()
+            def parser = new XmlParser()
+            parser.setFeature("http://apache.org/xml/features/disallow-doctype-decl", false)
+            parser.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+            parser.setFeature("http://xml.org/sax/features/namespaces", false)
+            def report = parser.parseText(fileContents)
+ 
+            unitTestData.runs += Integer.parseInt(report.attribute("tests").toString())
+            unitTestData.errors += Integer.parseInt(report.attribute("errors").toString())
+            unitTestData.skips += Integer.parseInt(report.attribute("skipped").toString())
+            unitTestData.failures += Integer.parseInt(report.attribute("failures").toString())
+            unitTestData.duration += Double.parseDouble(report.attribute("time").toString())
+        }
+ 
+        unitTestData.success = unitTestData.runs - (unitTestData.errors + unitTestData.failures + unitTestData.skips)
+ 
+        println "################### TESTS ###################"
+        println "Success : ${unitTestData.success}"
+        println "Failures : ${unitTestData.failures}"
+        println "#############################################"
+ 
+        def end_time = getTimestamp()
+        def onEnd = JsonOutput.toJson([stage_unittest_duration: unitTestData.duration, stage_unittest_passed_count: unitTestData.success, overall_status: "Executing", link: "${script.link}", end_time: end_time, stage_unittest_end_time: end_time, stage_unittest_failed_count: unitTestData.failures, stage_unittest_error_count: unitTestData.errors, application_name: "${script.application_name}", sonar_project_key: "${script.sonar_project_key}", repository: "${script.repository}", branch: "${script.code_branch}", build_number: "${script.env.BUILD_NUMBER}", id: "${script.id}", current_stage: "Unit Test", stage_unittest_status: "Passed", job: "${script.job}", timestamp: end_time])
+        echo onEnd;
+        sendDevopsData(onEnd, "${insightlive_ci_url}")
+    } catch(Exception e) {
+        def end_time = getTimestamp()
+        def onEnd = JsonOutput.toJson([application_name: "${script.application_name}", sonar_project_key: "${script.sonar_project_key}", repository: "${script.repository}", branch: "${script.code_branch}", overall_status: "Executing", link: "${script.link}", build_number: "${script.env.BUILD_NUMBER}", stage_unittest_start_time: end_time, id: "${script.id}", current_stage: "Build", stage_unittest_status: "Failed", job: "${script.job}", timestamp: end_time])
+        echo onEnd;
+        sendDevopsData(onEnd, "${insightlive_ci_url}")
+        throw e
+    }
+}
+
