@@ -151,7 +151,7 @@ pipeline {
 						sendDevopsData(onStart, "${insightlive_ci_url}")
 				sh "chmod -R 777 /var/jenkins_home/zap"
 						sh "cd /var/jenkins_home/zap && rm -rf *"
-						sh "docker run --rm -v /var/jenkins_home/zap/:/zap/wrk/:rw -t owasp/zap2docker-stable zap-full-scan.py -i -t http://10.128.0.42:8089/insightlive-dashboard/ -g gen.conf -x testreport.xml"
+						sh "docker run --rm -v /var/jenkins_home/zap/:/zap/wrk/:rw -t owasp/zap2docker-stable zap-full-scan.py -i -t http://10.128.0.42:8089/ -g gen.conf -x testreport.xml"
 				def end_time = getTimestamp()
 						def onEnd = JsonOutput.toJson([application_name: "${application_name}", sonar_project_key: "${sonar_project_key}", repository: "${repository}", branch: "${code_branch}", stage_dast_status: "Passed", overall_status: "Executing", link: "${link}", build_number: "${env.BUILD_NUMBER}", id: "${id}", current_stage: "DAST Scan", job: "${job}", stage_dast_end_time: end_time, timestamp: end_time])
 						sendDevopsData(onEnd, "${insightlive_ci_url}")
