@@ -7,7 +7,7 @@ pipeline {
         registry = "chamathka202602/one" 
         registryCredential = 'docker-hub-credentials'
 		application_name = "InsightLive"
-		application_url = "http://10.128.0.42:8089/insightlive-dashboard/"
+		application_url = "http://10.128.0.42:8089/"
 		insightlive_ci_url = "http://10.128.0.42:8087/devops/api/ci/upsert-ci-data"
         insightlive_md_url = "http://10.128.0.42:8087/devops/api/md/upsert-md-data"
         insightlive_cd_url = "http://10.128.0.42:8087/devops/api/cd/upsert-cd-data"
