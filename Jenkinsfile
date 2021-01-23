@@ -169,6 +169,8 @@ pipeline {
                  steps {
                     script {
                         try {
+			    echo "========================="
+			    echo "=======================Static analysis==================="
 			    def start_timestamp = getTimestamp()
                             def onStart = JsonOutput.toJson([application_name: "${application_name}", sonar_project_key: "${sonar_project_key}", repository: "${repository}", branch: "${code_branch}", stage_sast_sonar_status: "Executing", overall_status: "Executing", link: "${link}", build_number: "${env.BUILD_NUMBER}", id: "${id}", current_stage: "Static Analysis", job: "${job}", stage_sast_sonar_start_time: start_timestamp, timestamp: start_timestamp])
                             sendDevopsData(onStart, "${insightlive_ci_url}")
